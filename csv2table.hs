@@ -154,7 +154,7 @@ mkCell a xs = map (Cell (span xs) 0 a) liness
 
 mkTable :: Caption -> [Align] -> Bool -> [Lines] -> Table
 mkTable c as h xss = case h of
-                       True  -> Table c columns mkHeader $ mkRows as (tail csv)
+                       True  -> Table c columns mkHeader $ tail $ mkRows as csv
                        False -> Table c columns NoHeader $ mkRows as csv
                    where
                      csv      = filter (/=[""]) xss
@@ -195,7 +195,7 @@ mkHeaderRowSeparator (Pipe) ((Column w a):cs) = (let sep = "|" ++ replicate (w+2
                                                      LeftAlign   -> "|:" ++ (drop 2 sep)
                                                      RightAlign  -> reverse $ ":" ++ (drop 1 . reverse $ sep)
                                                      CenterAlign -> ("|:" ++) $ drop 2 $ reverse $ ":" ++ (drop 1 . reverse $ sep)
-                                                     _  -> sep ) ++
+                                                     _           -> reverse . drop 1. reverse $ sep ) ++
                                                 mkHeaderRowSeparator Pipe cs
 mkHeaderRowSeparator (Grid) []                = "+\n"
 mkHeaderRowSeparator (Pipe) []                = "|\n"
@@ -230,20 +230,13 @@ alignText w g (CenterAlign)  = T.unpack . T.center        w ' ' . T.pack
 alignText w g (DefaultAlign) = T.unpack . T.justifyLeft   w ' ' . T.pack
 
 row2Md :: TableType -> Row -> String
-row2Md t (Row cs) | (t == Grid || t== Pipe) = flatten $
-                       transpose $
-                       appendPipes $
-                       map cellToLines $
-                       cs
-row2Md t (Row cs) | (t == Simple || t == Multiline) = flatten $
-                       map (addGutter 1) $
-                       transpose $
-                       map cellToLines $
-                       cs
+row2Md (Grid) (Row cs) = flatten $ transpose $ appendPipes $ map cellToLines cs
+row2Md (Pipe) (Row cs) = flatten $ transpose $ appendPipes $ map cellToLines cs
+row2Md _      (Row cs) = flatten $ map (addGutter 1) $ transpose $ map cellToLines cs
 
 appendPipes :: [Lines] -> [Lines]
 appendPipes (xs:xss) = map (("| "++) . (++" | ")) xs : (map (map (++" |")) xss)
-appendPipes [] = []
+appendPipes []       = []
 
 addCaption :: CaptionPos -> Caption -> String -> String
 addCaption _             [] s = s
@@ -251,10 +244,10 @@ addCaption (BeforeTable) c  s = "Table: " ++ c ++ "\n\n" ++ s
 addCaption (AfterTable)  c  s = s ++ "\nTable: " ++ c
 
 toMarkdown :: TableType -> CaptionPos -> Table -> String
-toMarkdown (Simple) = toSimpleMd
+toMarkdown (Simple)    = toSimpleMd
 toMarkdown (Multiline) = toMultilineMd
-toMarkdown (Grid) = toGridMd
-toMarkdown (Pipe) = toPipeMd
+toMarkdown (Grid)      = toGridMd
+toMarkdown (Pipe)      = toPipeMd
 
 toMultilineMd :: CaptionPos -> Table -> String
 toMultilineMd l (Table c cs (Header h) rs) = addCaption l c $
