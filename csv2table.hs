@@ -326,11 +326,13 @@ toTableType []     = Grid
 getTableType :: [J.Inline] -> TableType
 getTableType ((J.Str s):[]) = toTableType s
 getTableType (_:is)         = getTableType is
+getTableType []             = Grid
 
 -- | Tells if header is present or not from code Inline
 isHeaderPresent :: [J.Inline] -> Bool
 isHeaderPresent ((J.Str s):[]) = not $ "n" `isInfixOf` s
 isHeaderPresent (_:is)         = isHeaderPresent is
+isHeaderPresent []             = True
 
 toAlign :: String -> [Align]
 toAlign (x:ys) = case x of
@@ -345,6 +347,7 @@ toAlign []     = []
 getAligns :: [J.Inline] -> [Align]
 getAligns ((J.Str s):[]) = toAlign s
 getAligns (_:is)         = getAligns is
+getAligns []             = []
 
 -- | Remove Str Inline used for specifying alignment and header for the table
 removeConfigString :: [J.Inline] -> [J.Inline]
