@@ -51,7 +51,7 @@ tablifyCsvLinks (J.Para [(J.Image l (f, _))]) | "csv" `isSuffixOf` f = do
         (Left _)    -> return []
         (Right xss) -> return $
                         pandocToBlocks $
-                        addInlineLabel (cleanLabel l) .
+                        addInlineLabel (removeConfigString l) .
                         P.readMarkdown P.def $
                         toMarkdown (getTableType l) AfterTable $
                         mkTable "" (getAligns l) (isHeaderPresent l) $
@@ -120,7 +120,7 @@ mkCells as xss = map (addCellAligns as .
                       mkCell DefaultAlign) xss
                where
                  lines1       = map . map $ lines
-                 calcWidths   = map . map . map $ length
+                 calcWidths   = map . map . map $ (+2) . length
                  columnWidths = map maximum .
                                 map concat  .
                                 transpose   .
@@ -211,11 +211,12 @@ padCell (Cell s w a xs) = Cell s w a (xs ++ padList)
                           padByNum = s - length xs
 
 -- | Expects padded cells
-alignCellStrings :: Cell -> Lines
-alignCellStrings (Cell _ w a cs) = map (alignText w 1 a) cs
+alignCellStrings :: TableType -> Cell -> Lines
+alignCellStrings (Grid) (Cell _ w a cs) = map (alignText w LeftAlign) cs
+alignCellStrings _      (Cell _ w a cs) = map (alignText w a) cs
 
-cellToLines :: Cell -> Lines
-cellToLines = alignCellStrings . padCell
+cellToLines :: TableType -> Cell -> Lines
+cellToLines t = alignCellStrings t . padCell
 
 flatten :: [Lines] -> String
 flatten = concatMap (++"\n") . map concat
@@ -223,20 +224,20 @@ flatten = concatMap (++"\n") . map concat
 addGutter :: Gutter -> Lines -> Lines
 addGutter g (x:xs) = x : map ((replicate g ' ')++) xs
 
-alignText :: Width -> Gutter -> Align -> String -> String
-alignText w g (LeftAlign)    = T.unpack . T.justifyLeft   w ' ' . T.pack
-alignText w g (RightAlign)   = T.unpack . T.justifyRight  w ' ' . T.pack
-alignText w g (CenterAlign)  = T.unpack . T.center        w ' ' . T.pack
-alignText w g (DefaultAlign) = T.unpack . T.justifyLeft   w ' ' . T.pack
+alignText :: Width -> Align -> String -> String
+alignText w (LeftAlign)    = T.unpack . T.justifyLeft   w ' ' . T.pack
+alignText w (RightAlign)   = T.unpack . T.justifyRight  w ' ' . T.pack
+alignText w (CenterAlign)  = T.unpack . T.center        w ' ' . T.pack
+alignText w (DefaultAlign) = T.unpack . T.justifyLeft   w ' ' . T.pack
 
 row2Md :: TableType -> Row -> String
-row2Md (Grid) (Row cs) = flatten $ transpose $ appendPipes $ map cellToLines cs
-row2Md (Pipe) (Row cs) = flatten $ transpose $ appendPipes $ map cellToLines cs
-row2Md _      (Row cs) = flatten $ map (addGutter 1) $ transpose $ map cellToLines cs
+row2Md (Grid) (Row cs) = flatten $ transpose $ appendPipes $ map (cellToLines Grid) cs
+row2Md (Pipe) (Row cs) = flatten $ transpose $ appendPipes $ map (cellToLines Pipe) cs
+row2Md t      (Row cs) = flatten $ map (addGutter 1) $ transpose $ map (cellToLines t) cs
 
 appendPipes :: [Lines] -> [Lines]
-appendPipes (xs:xss) = map (("| "++) . (++" | ")) xs : (map (map (++" |")) xss)
-appendPipes []       = []
+appendPipes (xs:[])  = [map (++" |") xs]
+appendPipes (xs:xss) = map (("| "++) . (++" | ")) xs : (map (map (++" | ")) xss)
 
 addCaption :: CaptionPos -> Caption -> String -> String
 addCaption _             [] s = s
@@ -314,22 +315,22 @@ addInlineLabel _ x = x
 pandocToBlocks :: J.Pandoc -> [J.Block]
 pandocToBlocks (J.Pandoc _ bs) = bs
 
+toTableType :: String -> TableType
+toTableType (x:ys) = case x of
+                       's' -> Simple
+                       'm' -> Multiline
+                       'p' -> Pipe
+                       _   -> Grid
+toTableType []     = Grid
+
 getTableType :: [J.Inline] -> TableType
-getTableType ((J.Code _ s):_) = case (take 1 s) of
-                                  "s" -> Simple
-                                  "m" -> Multiline
-                                  "g" -> Grid
-                                  "p" -> Pipe
-getTableType (_:is)           = getTableType is
-getTableType []               = Grid
+getTableType ((J.Str s):[]) = toTableType s
+getTableType (_:is)         = getTableType is
 
 -- | Tells if header is present or not from code Inline
 isHeaderPresent :: [J.Inline] -> Bool
-isHeaderPresent ((J.Code _ s):_) = case (take 1 . drop 2 $ s) of
-                                     "y" -> True
-                                     "n" -> False
-isHeaderPresent (_:is)           = isHeaderPresent is
-isHeaderPresent []               = True
+isHeaderPresent ((J.Str s):[]) = not $ "n" `isInfixOf` s
+isHeaderPresent (_:is)         = isHeaderPresent is
 
 toAlign :: String -> [Align]
 toAlign (x:ys) = case x of
@@ -337,16 +338,15 @@ toAlign (x:ys) = case x of
                    'r' -> RightAlign   : toAlign ys
                    'c' -> CenterAlign  : toAlign ys
                    'd' -> DefaultAlign : toAlign ys
+                   _   -> []          ++ toAlign ys
 toAlign []     = []
 
--- | Extracts alignment information from Code Inline
+-- | Extracts alignment information from Str Inline
 getAligns :: [J.Inline] -> [Align]
-getAligns ((J.Code _ s):_) = toAlign (drop 4 s)
-getAligns (_:is)           = getAligns is
-getAligns []               = []
+getAligns ((J.Str s):[]) = toAlign s
+getAligns (_:is)         = getAligns is
 
--- | Remove Code Inline used for specifying alignment and header for the table
-cleanLabel :: [J.Inline] -> [J.Inline]
-cleanLabel ((J.Code _ s):ys) = cleanLabel ys
-cleanLabel (x:ys)            = x : cleanLabel ys
-cleanLabel []                = []
+-- | Remove Str Inline used for specifying alignment and header for the table
+removeConfigString :: [J.Inline] -> [J.Inline]
+removeConfigString (_:[]) = []
+removeConfigString (x:ys) = x : removeConfigString ys
