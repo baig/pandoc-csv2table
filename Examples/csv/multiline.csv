@@ -1,0 +1,11 @@
+"**_Centered
+Header_**","~~Default
+Aligned~~","_Right
+Aligned_","`Left
+Aligned`"
+First~1~,row,12~units~,"Example of a row that
+spans multiple lines."
+*Second~2~*,row,5^10^~units~,"Here's **another** one.
+_Note the appropriately
+rendered inline
+markdown._"
