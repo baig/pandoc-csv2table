@@ -40,25 +40,7 @@ import qualified Text.Pandoc as P
 import qualified Text.Pandoc.JSON as J
 import qualified Data.Text as T
 
---------------------------------------------------------------------------------
-
-main :: IO ()
-main = J.toJSONFilter tablifyCsvLinks
-
-tablifyCsvLinks (J.Para [(J.Image l (f, _))]) | "csv" `isSuffixOf` f = do
-    csv <- parseCSVFromFile f
-    case csv of
-        (Left _)    -> return []
-        (Right xss) -> return $
-                        pandocToBlocks $
-                        addInlineLabel (removeConfigString l) .
-                        P.readMarkdown P.def $
-                        toMarkdown (getTableType l) AfterTable $
-                        mkTable "" (getAligns l) (isHeaderPresent l) $
-                        xss
-tablifyCsvLinks x = return [x]
-
---------------------------------------------------------------------------------
+-- Type synonyms
 
 type Span    = Int
 type Width   = Int
@@ -66,24 +48,27 @@ type Gutter  = Int
 type Lines   = [String]
 type Caption = String
 
--- | Alignment of a column in the Table.
---   Not all 'TableTypes' support column alignments.
-data Align = LeftAlign    -- Left Align
-           | RightAlign   -- Right Align
-           | CenterAlign  -- Center Align
-           | DefaultAlign -- Default Align
-           deriving (Show)
+-- Data Definitions
 
--- | Type of Pandoc Table to render.
+-- | Type of the 'Table'.
 data TableType = Simple    -- Simple Table
                | Multiline -- Multiline Table
                | Grid      -- Grid Table
                | Pipe      -- Pipe Table
                deriving (Eq, Show)
 
--- | Position of the Table caption.
-data CaptionPos = BeforeTable | AfterTable
+-- | Position of the caption.
+data CaptionPos = BeforeTable -- Insert caption before table markdown.
+                | AfterTable  -- Insert caption after table markdown.
                 deriving (Show)
+
+-- | Alignment of a Column in the Table.
+--   Not all TableTypes support column alignments.
+data Align = LeftAlign    -- Left Align
+           | RightAlign   -- Right Align
+           | CenterAlign  -- Center Align
+           | DefaultAlign -- Default Align
+           deriving (Show)
 
 -- | A cell in a table has column span, cell width, cell alignment and the
 --   number of lines.
@@ -93,27 +78,40 @@ data CaptionPos = BeforeTable | AfterTable
 --     * __Align:__ Alignment of the content inside the cells
 --     * __Lines:__ A list of strings where each string represents a line
 data Cell = Cell Span Width Align Lines
-          deriving (Show)
+            deriving (Show)
+            
+-- | A Row contains a list of Cells.
+data Row = Row [Cell]
+           deriving (Show)
 
 -- | A Column contain information about its width and alignment.
+--   
+--     * __Width:__  Character length of the widest 'Cell' in a 'Column'.
+--     * __Align:__  Alignment of the cells inside this column
 data Column = Column Width Align
-            deriving (Show)
-              -- Alignment of the cells inside this column
-              -- Width is the character length of the widest cell 
+              deriving (Show)
 
--- | A Row contains a series of cells.
-data Row = Row [Cell]
-         deriving (Show)
-
--- | A Header, if present, contains a Row.
-data Header = Header Row | NoHeader
+-- | A Header contains a Row if present, otherwise NoHeader.
+data Header = Header Row
+            | NoHeader
             deriving (Show)
 
 -- | A Table has a caption, information about each column's width and
 --   alignment, either a header with a row or no header, and a series of rows.
 data Table = Table Caption [Column] Header [Row]
-           deriving (Show)
+             deriving (Show)
+             
+-- Helper functions to create a Table from the parsed CSV file.
+-- CSV file is parsed into a list of list of Strings.
 
+-- | Converts Lines to Cell.
+mkCell :: Align -> Lines -> [Cell]
+mkCell a xs = map (Cell (span xs) 0 a) liness
+            where
+              span   = maximum . map (length . lines)
+              liness = map lines xs
+
+-- | Converts a list of Lines to a list of Cells.
 mkCells :: [Align] -> [Lines] -> [[Cell]]
 mkCells as xss = map (addCellAligns as .
                       addCellWidths columnWidths .
@@ -128,17 +126,14 @@ mkCells as xss = map (addCellAligns as .
                                 lines1      $
                                 xss
 
-updateCellWidth :: Width -> Cell -> Cell
-updateCellWidth w (Cell s _ a xs) = Cell s w a xs
-
-updateCellAlign :: Align -> Cell -> Cell
-updateCellAlign a (Cell s w _ xs) = Cell s w a xs
-
 addCellAligns :: [Align] -> [Cell] -> [Cell]
 addCellAligns (a:as) (c:cs) = updateCellAlign a c  : addCellAligns as cs
 addCellAligns []     (c:cs) = c : addCellAligns [] cs
 addCellAligns (a:as) []     = []
 addCellAligns []     []     = []
+
+updateCellAlign :: Align -> Cell -> Cell
+updateCellAlign a (Cell s w _ xs) = Cell s w a xs
 
 addCellWidths :: [Width] -> [Cell] -> [Cell]
 addCellWidths (w:ws) (c:cs) = updateCellWidth w c : addCellWidths ws cs
@@ -146,20 +141,8 @@ addCellWidths []     (c:cs) = c : addCellWidths [] cs
 addCellWidths (w:ws) []     = []
 addCellWidths []     []     = []
 
-mkCell :: Align -> Lines -> [Cell]
-mkCell a xs = map (Cell (span xs) 0 a) liness
-            where
-              span   = maximum . map (length . lines)
-              liness = map lines xs
-
-mkTable :: Caption -> [Align] -> Bool -> [Lines] -> Table
-mkTable c as h xss = case h of
-                       True  -> Table c columns mkHeader $ tail $ mkRows as csv
-                       False -> Table c columns NoHeader $ mkRows as csv
-                   where
-                     csv      = filter (/=[""]) xss
-                     columns  = mkColumns as . head . mkRows as $ csv
-                     mkHeader = Header $ head $ mkRows as csv
+updateCellWidth :: Width -> Cell -> Cell
+updateCellWidth w (Cell s _ a xs) = Cell s w a xs
 
 mkRows :: [Align] -> [Lines] -> [Row]
 mkRows as = map Row . mkCells as
@@ -171,6 +154,15 @@ mkColumns as (Row cs) = columnify as cs
                         columnify []     ((Cell _ w _ _):cs) = Column w DefaultAlign : columnify [] cs
                         columnify (a:as) []                  = []
                         columnify []     []                  = []
+
+mkTable :: Caption -> [Align] -> Bool -> [Lines] -> Table
+mkTable c as h xss = case h of
+                       True  -> Table c columns mkHeader $ tail $ mkRows as csv
+                       False -> Table c columns NoHeader $ mkRows as csv
+                   where
+                     csv      = filter (/=[""]) xss
+                     columns  = mkColumns as . head . mkRows as $ csv
+                     mkHeader = Header $ head $ mkRows as csv
 
 insertRowSeparator :: TableType -> [Column] -> Lines -> Lines
 insertRowSeparator (Multiline) cs xs = intersperse "\n" xs
@@ -306,12 +298,15 @@ toSimpleMd l (Table c cs (NoHeader) rs) = addCaption l c $
                                            map (row2Md Simple) rs) ++
                                           mkHeaderRowSeparator Simple cs
 
--- | Adds Pandoc's [Inline] block inside table as caption
+-- Helper functions to manipulate the Pandoc Document and parse the 
+-- Configuration String.
+
+-- | Add Inline from Image into Table as the caption
 addInlineLabel :: [J.Inline] -> J.Pandoc -> J.Pandoc
 addInlineLabel i (J.Pandoc m [(P.Table _ as ds ts tss)]) = J.Pandoc m [(P.Table i as ds ts tss)]
 addInlineLabel _ x = x
 
--- | Extracts [Block] from J.Pandoc
+-- | Extracts Blocks from Pandoc Document
 pandocToBlocks :: J.Pandoc -> [J.Block]
 pandocToBlocks (J.Pandoc _ bs) = bs
 
@@ -328,7 +323,7 @@ getTableType ((J.Str s):[]) = toTableType s
 getTableType (_:is)         = getTableType is
 getTableType []             = Grid
 
--- | Tells if header is present or not from code Inline
+-- | Whether to treat first line of CSV as a header or not.
 isHeaderPresent :: [J.Inline] -> Bool
 isHeaderPresent ((J.Str s):[]) = not $ "n" `isInfixOf` s
 isHeaderPresent (_:is)         = isHeaderPresent is
@@ -343,13 +338,31 @@ toAlign (x:ys) = case x of
                    _   -> []          ++ toAlign ys
 toAlign []     = []
 
--- | Extracts alignment information from Str Inline
+-- | Parse Config String for alignment information
 getAligns :: [J.Inline] -> [Align]
 getAligns ((J.Str s):[]) = toAlign s
 getAligns (_:is)         = getAligns is
 getAligns []             = []
 
--- | Remove Str Inline used for specifying alignment and header for the table
+-- | Remove Str Inline from caption
 removeConfigString :: [J.Inline] -> [J.Inline]
 removeConfigString (_:[]) = []
 removeConfigString (x:ys) = x : removeConfigString ys
+
+-- Main function
+
+main :: IO ()
+main = J.toJSONFilter tablifyCsvLinks
+
+tablifyCsvLinks (J.Para [(J.Image l (f, _))]) | "csv" `isSuffixOf` f = do
+    csv <- parseCSVFromFile f
+    case csv of
+        (Left _)    -> return []
+        (Right xss) -> return $
+                        pandocToBlocks $
+                        addInlineLabel (removeConfigString l) .
+                        P.readMarkdown P.def $
+                        toMarkdown (getTableType l) AfterTable $
+                        mkTable "" (getAligns l) (isHeaderPresent l) $
+                        xss
+tablifyCsvLinks x = return [x]
