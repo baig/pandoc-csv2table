@@ -348,6 +348,7 @@ getAligns []             = []
 removeConfigString :: [J.Inline] -> [J.Inline]
 removeConfigString (_:[]) = []
 removeConfigString (x:ys) = x : removeConfigString ys
+removeConfigString []     = []
 
 -- Main function
 
