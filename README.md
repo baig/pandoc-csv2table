@@ -63,7 +63,7 @@ Source code is released under the Terms and Conditions of [MIT License](http://o
 
 Please refer to the [License file][license] in the project's root directory.
 
-[png]: https://raw.githubusercontent.com/baig/pandoc-csv2table-filter/master/demo.png
+[png]: https://raw.githubusercontent.com/baig/pandoc-csv2table-filter/master/Examples/demo.png
 [license]: https://raw.githubusercontent.com/baig/pandoc-csv2table-filter/master/LICENSE
 [example-md]: https://raw.githubusercontent.com/baig/pandoc-csv2table-filter/master/Examples/example.md
 [example-pdf]: https://github.com/baig/pandoc-csv2table-filter/blob/master/Examples/example.pdf
