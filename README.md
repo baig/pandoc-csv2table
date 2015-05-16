@@ -1,4 +1,4 @@
-# pandoc-csv2table-filter
+# Pandoc csv2table Filter
 
 A Pandoc filter that replaces image links having *.csv extension with
 [Pandoc Table Markdown][1].
@@ -7,13 +7,27 @@ A Pandoc filter that replaces image links having *.csv extension with
 
 ## Usage
 
-In your markdown, include the csv file as shown below.
+There are three ways to include CSV in your markdown.
 
-> \!\[This text will become the table caption\](table.csv)
+1.  **Referencing CSV file in Image Links:**
 
-You can use Pandoc Markdown in the CSV file.
-It will be parsed by the Pandoc Markdown Reader before insertion into the
-document.
+    > ![This text will become the table caption](table.csv)
+    
+2.  **Referencing CSV file in Fenced Code Blocks:**
+    
+    > ```{.table caption="This is the **caption**" source="table.csv"}
+    > ```
+    
+3.  **Including CSV content inside Fenced Code Blocks:**
+
+    > ```{.table caption="This is the **caption**"}
+    > Fruit, Quantity, Price
+    > apples, 15, 3.24
+    > oranges, 12, 2.22
+    > ```
+
+CSV files or content can use markdown. It will be parsed by the Pandoc Markdown
+Reader before being inserted as a table into the document.
 
 See [example.md][example-md] and the rendered [pdf][example-pdf] version in
 the Examples folder for more details on usage.
