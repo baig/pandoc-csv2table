@@ -1,9 +1,31 @@
 # Pandoc csv2table Filter
 
 A Pandoc filter that replaces image links having *.csv extension with
-[Pandoc Table Markdown][1].
+[Pandoc Table Markdown][tables].
 
 ![A CSV file rendered to Markdown and PDF][png]
+
+[png]: Examples/demo.png
+
+## Installation
+
+You can use this filter in two ways.
+
+1.  **Install using Cabal:** After installing Haskell platform, run:
+
+    > ```
+    > cabal install pandoc-csv2table
+    > ```
+    
+2.  **Use the single file filter:** There is a gist hosting a single file
+    version of this filter [here][gist]. Clone it and make it an executable script by
+    running:
+    
+    > ```
+    > chmod +x pandoc-csv2table.hs
+    > ```
+    
+[gist]: https://gist.github.com/baig/b69e3146251bd90d12e7
 
 ## Usage
 
@@ -22,7 +44,7 @@ There are three ways to include CSV in your markdown.
     
 3.  **Including CSV content inside Fenced Code Blocks:**
 
-    > \`\`\`{.table caption="This is the **caption**"}  
+    > \`\`\`{.table aligns="LCR" caption="This is the **caption**" header="yes"}  
     > Fruit, Quantity, Price  
     > apples, 15, 3.24  
     > oranges, 12, 2.22  
@@ -33,16 +55,25 @@ There are three ways to include CSV in your markdown.
 CSV file or content can contain pandoc markdown. It will be parsed by the Pandoc Markdown
 Reader before being inserted as a table into the document.
 
-See [example.md][example-md] and the rendered [pdf][example-pdf] version in
-the Examples folder for more details on usage.
+See [example.md][md] and the rendered [pdf][] version in the Examples folder
+for more details on usage.
 
-## Configuration String
+[md]: Examples/example.md
+[pdf]: Examples/example.pdf
 
-A configuration string lets you specify
+## Options
+
+You can specify a [configuration string][cfg] for image links and
+[attributes][atr] for fenced code blocks. There are valid options for specifying
 
 -   Type of the table
 -   Column alignments
 -   Whether to treat the first line of the CSV file as header or not
+
+[cfg]: README.md#configuration-string
+[atr]: README.md#attributes
+
+### Configuration String
 
 It is included right before the closing square bracket **without any space in
 between**, as shown in the example below.
@@ -73,6 +104,30 @@ You can specify `l` `r` `c` `d` for each column in a series.
 The extra letters will be ignored if they exceed the number of columns in the
 CSV file.
 
+### Attributes
+
+You can specify header attributes in fecnced code blocks like this:
+
+    > \`\`\`{.table type="pipe" aligns="LCR" caption="A **caption**" header="yes"}  
+    > Fruit, Quantity, Price  
+    > apples, 15, 3.24  
+    > oranges, 12, 2.22  
+    > \`\`\`
+
+***Note: `.table` must be included if the fenced code block is intended to be
+processed by this filter.***
+
+Valid attributes that you can specify in code blocks include:
+
+-   **type** of the table can be **`simple`**, **`multiline`**,
+    **`grid`** (default), or **`pipe`**.
+-   **header** can be `yes` (default) or `no`
+-   **caption** is a string which can contain markdown.
+-   **source** is the path to a valid CSV file to be rendered as pandoc table.
+    If present, the contents inside the fenced code blocks are ignored.
+-   **aligns** specify alignment for each column. Use **`L`** for left, **`R`**
+    for right, **`C`** for center, and **`D`** for default.
+
 ## License
 
 Copyright &copy; 2015 [Wasif Hasan Baig](https://twitter.com/_wbaig)
@@ -81,8 +136,5 @@ Source code is released under the Terms and Conditions of [MIT License](http://o
 
 Please refer to the [License file][license] in the project's root directory.
 
-[png]: https://raw.githubusercontent.com/baig/pandoc-csv2table-filter/master/Examples/demo.png
-[license]: https://raw.githubusercontent.com/baig/pandoc-csv2table-filter/master/LICENSE
-[example-md]: https://raw.githubusercontent.com/baig/pandoc-csv2table-filter/master/Examples/example.md
-[example-pdf]: https://github.com/baig/pandoc-csv2table-filter/blob/master/Examples/example.pdf
-[1]: http://pandoc.org/README.html#tables
+[license]: LICENSE
+[tables]: http://pandoc.org/README.html#tables
