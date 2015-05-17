@@ -33,22 +33,24 @@ There are three ways to include CSV in your markdown.
 
 1.  **Referencing CSV file in Image Links:**
 
-    > \!\[This text will become the table caption](table.csv)
+    ```
+    ![This text will become the table caption](table.csv)
+    ```
     
 2.  **Referencing CSV file in Fenced Code Blocks:**
     
-    > \`\`\`{.table caption="This is the \*\*caption\*\*" source="table.csv"}  
-    > \`\`\`
+        ```{.table caption="This is the **caption**" source="table.csv"}  
+        ```
     
     Only code blocks having `.table` class will be processed.
     
 3.  **Including CSV content inside Fenced Code Blocks:**
 
-    > \`\`\`{.table aligns="LCR" caption="This is the **caption**" header="yes"}  
-    > Fruit, Quantity, Price  
-    > apples, 15, 3.24  
-    > oranges, 12, 2.22  
-    > \`\`\`
+        ```{.table aligns="LCR" caption="This is the **caption**" header="yes"}  
+        Fruit, Quantity, Price  
+        apples, 15, 3.24  
+        oranges, 12, 2.22  
+        ```
 
     Only code blocks having `.table` class will be processed.
 
@@ -108,11 +110,11 @@ CSV file.
 
 You can specify header attributes in fecnced code blocks like this:
 
-    > \`\`\`{.table type="pipe" aligns="LCR" caption="A **caption**" header="yes"}  
-    > Fruit, Quantity, Price  
-    > apples, 15, 3.24  
-    > oranges, 12, 2.22  
-    > \`\`\`
+    ```{.table type="pipe" aligns="LCR" caption="A **caption**" header="yes"}  
+    Fruit, Quantity, Price  
+    apples, 15, 3.24  
+    oranges, 12, 2.22  
+    ```
 
 ***Note: `.table` must be included if the fenced code block is intended to be
 processed by this filter.***
