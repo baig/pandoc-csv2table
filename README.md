@@ -1,6 +1,6 @@
 # Pandoc csv2table Filter
 
-A Pandoc filter that replaces image links having *.csv extension with
+A Pandoc filter that replaces CSV content (either inside fenced code blocks or referenced CSV files) with
 [Pandoc Table Markdown][tables].
 
 ![A CSV file rendered to Markdown and PDF][png]
