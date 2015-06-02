@@ -1,5 +1,5 @@
 Name:                pandoc-csv2table
-Version:             1.0.0
+Version:             1.0.1
 Synopsis:            Convert CSV to Pandoc Table Markdown
 Description:         A Pandoc filter that replaces image inline or fenced code
                      blocks with pandoc markdown tables.
@@ -56,6 +56,7 @@ Library
                      pandoc >= 1.13.0.0,
                      pandoc-types >= 1.12.0.0
   Hs-Source-Dirs:    src
+  Extensions:        CPP
   Exposed-Modules:   Text.Table.Definition,
                      Text.Table.Builder,
                      Text.Table.Helper

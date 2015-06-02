@@ -51,7 +51,7 @@ module Text.Table.Helper (
 
 import Text.CSV (CSV)
 import Data.List (isInfixOf)
-import Text.Pandoc (readMarkdown, def)
+import Text.Pandoc (readMarkdown, def, ReaderOptions)
 import qualified Text.Pandoc.JSON as J
 -- Local imports
 import Text.Table.Definition
@@ -133,14 +133,25 @@ getAtr a []                   = ""
 -- | Make Pandoc Table from Image Inline 
 tableFromImageInline :: [J.Inline] -> CSV -> J.Pandoc
 tableFromImageInline l = addInlineLabel (removeConfigString l) .
-                         readMarkdown def .
+                         readMarkdown' def .
                          toMarkdown (getTableType l) AfterTable .
                          mkTable "" (getAligns l) (isHeaderPresent l)
 
 -- | Make Pandoc Table from Code Block 
 tableFromCodeBlock :: Atrs -> CSV -> J.Pandoc
-tableFromCodeBlock as = readMarkdown def .
+tableFromCodeBlock as = readMarkdown' def .
                         toMarkdown (toTableType $ getAtr "type" as) AfterTable .
                         mkTable (getAtr "caption" as)
                                 (toAlign $ getAtr "aligns" as)
                                 (isHeaderPresent1 $ getAtr "header" as)
+
+#if MIN_VERSION_pandoc(1,14,0)
+readMarkdown' :: ReaderOptions -> String -> J.Pandoc
+readMarkdown' o s = case read of
+                      (Left _)  -> J.Pandoc J.nullMeta []
+                      (Right p) -> p
+                  where read = readMarkdown o s
+#else
+readMarkdown' :: ReaderOptions -> String -> J.Pandoc
+readMarkdown' = readMarkdown
+#endif
