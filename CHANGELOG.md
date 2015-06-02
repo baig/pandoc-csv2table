@@ -5,6 +5,9 @@ project adheres to [Semantic Versioning](http://semver.org/) and Haskell
 
 ## [Unreleased][unreleased]
 
+## Changed
+- Updated cabal file
+
 ## [1.0.1] - 2015-06-02
 
 ### Fixed
