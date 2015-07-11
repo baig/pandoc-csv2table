@@ -29,6 +29,8 @@ You can use this filter in two ways.
 
 ## Usage
 
+### Referencing or including CSV
+
 There are three ways to include CSV in your markdown.
 
 1.  **Referencing CSV file in Image Links:**
@@ -56,6 +58,18 @@ There are three ways to include CSV in your markdown.
 
 CSV file or content can contain pandoc markdown. It will be parsed by the Pandoc Markdown
 Reader before being inserted as a table into the document.
+
+### Running the filter
+
+Given the file `test.md`, run the filter using the command below
+
+    pandoc --filter pandoc-csv2table -o test.html test.md
+
+or
+
+    pandoc -t json test.md | pandoc-csv2table | pandoc -f json -o test.html
+
+## Examples
 
 See [example.md][md] and the rendered [pdf][] version in the Examples folder
 for more details on usage.
