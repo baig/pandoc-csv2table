@@ -61,7 +61,7 @@ Reader before being inserted as a table into the document.
 
 ### Running the filter
 
-Given the file `test.md`, run the filter using the command below
+Given the filename `test.md`, run the filter using command
 
     pandoc --filter pandoc-csv2table -o test.html test.md
 
