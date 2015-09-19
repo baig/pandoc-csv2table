@@ -41,7 +41,7 @@ module Text.Table.Builder (
 ) where
 
 import Data.List
-import Data.Text (pack, unpack, justifyLeft, justifyRight, center)
+import Data.Text (pack, unpack, strip, justifyLeft, justifyRight, center)
 
 -- Local import
 import Text.Table.Definition
@@ -163,10 +163,10 @@ addGutter :: Gutter -> Lines -> Lines
 addGutter g (x:xs) = x : map ((replicate g ' ')++) xs
 
 alignText :: Width -> Align -> String -> String
-alignText w (LeftAlign)    = unpack . justifyLeft   w ' ' . pack
-alignText w (RightAlign)   = unpack . justifyRight  w ' ' . pack
-alignText w (CenterAlign)  = unpack . center        w ' ' . pack
-alignText w (DefaultAlign) = unpack . justifyLeft   w ' ' . pack
+alignText w (LeftAlign)    = unpack . justifyLeft   w ' ' . strip . pack
+alignText w (RightAlign)   = unpack . justifyRight  w ' ' . strip . pack
+alignText w (CenterAlign)  = unpack . center        w ' ' . strip . pack
+alignText w (DefaultAlign) = unpack . justifyLeft   w ' ' . strip . pack
 
 row2Md :: TableType -> Row -> String
 row2Md (Grid) (Row cs) = flatten $ transpose $ appendPipes $ map (cellToLines Grid) cs
