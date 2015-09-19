@@ -1,39 +1,9 @@
 Name:                 pandoc-csv2table
-Version:              1.0.1
+Version:              1.0.2
 Synopsis:             Convert CSV to Pandoc Table Markdown
 Description:          A Pandoc filter that replaces image inline or fenced code
-                      blocks with pandoc markdown tables.
-                      .
-                      Image links must have a "csv" extension.
-                      Include the csv file in markdown as
-                      .
-                      @
-                        ![This is the table caption.](table.csv)
-                      @
-                      .
-                      You can also use fenced code blocks to reference an
-                      external CSV file using the "source" attribute.
-                      .
-                      > ```{.table caption="This is the **caption**" source="table.csv"}
-                      > ```
-                      .
-                      You can include the CSV contents inside fenced code blocks
-                      and omit the source attribute.
-                      .
-                      > ```{.table caption="This is the **caption**"}
-                      > Fruit, Quantity, Price
-                      > apples, 15, 3.24
-                      > oranges, 12, 2.22
-                      > ```
-                      .
-                      CSV contents will be parsed by the pandoc markdown reader.
-                      .
-                      You can see a rendered PDF file with tables generated from
-                      CSV files at <https://github.com/baig/pandoc-csv2table-filter/blob/master/Examples/example.pdf Example>.
-                      .
-                      For more information, see <https://github.com/baig/pandoc-csv2table-filter/blob/master/README.md README>
-                      at project's source repository.
-
+                      blocks with pandoc table markdown. CSV contents will be
+                      parsed by the pandoc markdown reader.
 Homepage:             https://github.com/baig/pandoc-csv2table-filter
 Bug-Reports:          https://github.com/baig/pandoc-csv2table-filter/issues
 License:              MIT
@@ -52,7 +22,7 @@ Source-repository     head
   location:           git://github.com/baig/pandoc-csv2table-filter.git
 
 Library
-  Build-Depends:      base >=4.8 && <4.9,
+  Build-Depends:      base >=4.6 && <4.9,
                       csv >= 0.1.2,
                       text >= 0.11 && < 1.3,
                       pandoc >= 1.13.0.0,
@@ -66,7 +36,7 @@ Library
   Default-Language:   Haskell2010
 
 Executable pandoc-csv2table
-  Build-Depends:      base >=4.8 && <4.9,
+  Build-Depends:      base >=4.6 && <4.9,
                       csv >= 0.1.2,
                       pandoc >= 1.13.0.0,
                       pandoc-types >= 1.12.0.0,
