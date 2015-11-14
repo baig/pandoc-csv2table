@@ -59,37 +59,8 @@ import Text.CSV         (parseCSV, parseCSVFromFile)
 import Data.List        (isSuffixOf)
 import Text.Pandoc.JSON (Block(Para, CodeBlock), Inline(Image), toJSONFilter)
 -- Local imports
-import Text.Table.Helper
+import Text.Table.Tablify
 
 main :: IO ()
 main = toJSONFilter tablifyCsvLinks
 
-tablifyCsvLinks :: Block -> IO [Block]
-tablifyCsvLinks (Para [(Image l (f, _))]) | "csv" `isSuffixOf` f = do
-    csv <- parseCSVFromFile f
-    case csv of
-        (Left _)    -> return []
-        (Right xss) -> return .
-                       toBlocks .
-                       tableFromImageInline l $
-                       xss
-tablifyCsvLinks b@(CodeBlock (_, cs, as) s) | "table" `elem` cs = do
-    let file = getAtr "source" as
-    case file of
-      "" -> case s of
-              "" -> return [b]
-              _  -> case (parseCSV "" s) of
-                      (Left _)    -> return []
-                      (Right xss) -> return .
-                                     toBlocks .
-                                     tableFromCodeBlock as $
-                                     xss
-      _  -> do
-              csv <- parseCSVFromFile file
-              case csv of
-                (Left _)    -> return []
-                (Right xss) -> return .
-                               toBlocks .
-                               tableFromCodeBlock as $
-                               xss
-tablifyCsvLinks x = return [x]

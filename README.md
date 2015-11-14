@@ -27,6 +27,9 @@ You can use this filter in two ways.
     
 [gist]: https://gist.github.com/baig/b69e3146251bd90d12e7
 
+You can also use this filter in your Pandoc application by calling
+`tablifyCsvlinks`.
+
 ## Usage
 
 ### Referencing or including CSV
