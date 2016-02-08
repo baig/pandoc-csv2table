@@ -1,5 +1,5 @@
 Name:                 pandoc-csv2table
-Version:              1.0.3
+Version:              1.0.4
 Synopsis:             Convert CSV to Pandoc Table Markdown
 Description:          A Pandoc filter that replaces image inline or fenced code
                       blocks with pandoc table markdown. CSV contents will be
