@@ -6,6 +6,9 @@ project adheres to [Semantic Versioning](http://semver.org/) and Haskell
 
 ## [Unreleased][unreleased]
 
+### Changed
+- Exporting `tablifyCsvLinks` function (Merged pull request by @vmandela)
+
 
 ## [1.0.3] - 2016-02-07
 

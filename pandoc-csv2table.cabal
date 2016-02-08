@@ -32,6 +32,7 @@ Library
   Exposed-Modules:    Text.Table.Definition,
                       Text.Table.Builder,
                       Text.Table.Helper
+                      Text.Table.Tablify
   Buildable:          True
   Default-Language:   Haskell2010
 
