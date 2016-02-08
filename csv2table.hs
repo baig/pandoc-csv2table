@@ -65,7 +65,13 @@ main :: IO ()
 main = toJSONFilter tablifyCsvLinks
 
 tablifyCsvLinks :: Block -> IO [Block]
+#if MIN_VERSION_pandoc(1,16,0)
+-- Image Attr [Inline] Target -- ^ Image:  alt text (list of inlines), target
+tablifyCsvLinks (Para [(Image _ l (f, _))]) | "csv" `isSuffixOf` f = do
+#else
+-- Image [Inline] Target -- ^ Image:  alt text (list of inlines), target
 tablifyCsvLinks (Para [(Image l (f, _))]) | "csv" `isSuffixOf` f = do
+#endif
     csv <- parseCSVFromFile f
     case csv of
         (Left _)    -> return []
