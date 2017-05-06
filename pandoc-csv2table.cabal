@@ -22,7 +22,7 @@ Source-repository     head
   location:           git://github.com/baig/pandoc-csv2table-filter.git
 
 Library
-  Build-Depends:      base >=4.6 && <4.9,
+  Build-Depends:      base >=4.6 && <5,
                       csv >= 0.1.2,
                       text >= 0.11 && < 1.3,
                       pandoc >= 1.13.0.0,
@@ -37,7 +37,7 @@ Library
   Default-Language:   Haskell2010
 
 Executable pandoc-csv2table
-  Build-Depends:      base >=4.6 && <4.9,
+  Build-Depends:      base >=4.6 && <5,
                       csv >= 0.1.2,
                       pandoc >= 1.13.0.0,
                       pandoc-types >= 1.12.0.0,
