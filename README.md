@@ -149,7 +149,7 @@ Valid attributes that you can specify in code blocks include:
 
 ## License
 
-Copyright &copy; 2015-2017 [Wasif Hasan Baig](https://twitter.com/_wbaig)
+Copyright &copy; 2015-2018 [Wasif Hasan Baig](https://twitter.com/_wbaig)
 
 Source code is released under the Terms and Conditions of [MIT License](http://opensource.org/licenses/MIT).
 
