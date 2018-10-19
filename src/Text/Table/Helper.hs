@@ -130,6 +130,18 @@ getAtr a ((at,v):_) | a == at = v
 getAtr a (_:xs)               = getAtr a xs
 getAtr a []                   = ""
 
+-- The conversion happens in three stages
+-- 1. Convert the CSV to an internal table representation
+-- 2. Convert internal table representation to markdown
+-- 3. Convert markdown into Pandoc AST.
+--
+-- Converting from internal table representation to Pandoc AST
+-- via markdown decouples internal table representation from
+-- Pandoc AST changes.
+--
+-- TODO: What is the downside of going directly from CSV to Pandoc
+-- table representation?
+
 -- | Make Pandoc Table from Image Inline 
 tableFromImageInline :: [J.Inline] -> CSV -> J.Pandoc
 tableFromImageInline l = addInlineLabel (removeConfigString l) .
