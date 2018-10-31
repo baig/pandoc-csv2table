@@ -45,6 +45,7 @@ import Data.List        (isSuffixOf)
 import Text.Table.Helper
 
 tablifyCsvLinks :: Block -> IO [Block]
+-- variant 1: Referencing CSV file in Image Links
 #if MIN_VERSION_pandoc(1,16,0)
 -- Image Attr [Inline] Target -- ^ Image:  alt text (list of inlines), target
 tablifyCsvLinks (Para [(Image _ l (f, _))]) | "csv" `isSuffixOf` f = do
@@ -59,9 +60,11 @@ tablifyCsvLinks (Para [(Image l (f, _))]) | "csv" `isSuffixOf` f = do
                        toBlocks .
                        tableFromImageInline l $
                        xss
+-- variant 2 and 3: Fenced Code Blocks
 tablifyCsvLinks b@(CodeBlock (_, cs, as) s) | "table" `elem` cs = do
     let file = getAtr "source" as
     case file of
+      -- variant 2: Referencing CSV file in Fenced Code Blocks
       "" -> case s of
               "" -> return [b]
               _  -> case (parseCSV "" s) of
@@ -70,6 +73,7 @@ tablifyCsvLinks b@(CodeBlock (_, cs, as) s) | "table" `elem` cs = do
                                      toBlocks .
                                      tableFromCodeBlock as $
                                      xss
+      -- variant 3:Including CSV content inside Fenced Code Blocks
       _  -> do
               csv <- parseCSVFromFile file
               case csv of
@@ -78,4 +82,5 @@ tablifyCsvLinks b@(CodeBlock (_, cs, as) s) | "table" `elem` cs = do
                                toBlocks .
                                tableFromCodeBlock as $
                                xss
+-- Return input unchanged in case of no match
 tablifyCsvLinks x = return [x]

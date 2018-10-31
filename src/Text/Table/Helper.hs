@@ -56,6 +56,11 @@ import qualified Text.Pandoc.JSON as J
 -- Local imports
 import Text.Table.Definition
 import Text.Table.Builder
+-- imports for compatibility with Pandoc 2.0+
+#if MIN_VERSION_pandoc(2,0,0)
+import Text.Pandoc (runPure)
+import Data.Text (pack)
+#endif
 
 -- Helper functions to manipulate the Pandoc Document and parse the 
 -- Configuration String.
@@ -130,6 +135,18 @@ getAtr a ((at,v):_) | a == at = v
 getAtr a (_:xs)               = getAtr a xs
 getAtr a []                   = ""
 
+-- The conversion happens in three stages
+-- 1. Convert the CSV to an internal table representation
+-- 2. Convert internal table representation to markdown
+-- 3. Convert markdown into Pandoc AST.
+--
+-- Converting from internal table representation to Pandoc AST
+-- via markdown decouples internal table representation from
+-- Pandoc AST changes.
+--
+-- TODO: What is the downside of going directly from CSV to Pandoc
+-- table representation?
+
 -- | Make Pandoc Table from Image Inline 
 tableFromImageInline :: [J.Inline] -> CSV -> J.Pandoc
 tableFromImageInline l = addInlineLabel (removeConfigString l) .
@@ -144,8 +161,19 @@ tableFromCodeBlock as = readMarkdown' def .
                         mkTable (getAtr "caption" as)
                                 (toAlign $ getAtr "aligns" as)
                                 (isHeaderPresent1 $ getAtr "header" as)
+#if MIN_VERSION_pandoc(2,0,0)
+-- Pandoc now operates on Data.Text instead of String. So we pack the string
+-- before calling readMarkdown.
+-- The function signature of readMarkdown has changed. It now returns a PandocMonad
+-- instead of Pandoc. We run readMarkdown in runPure to indicate we are not doing IO
+-- and handle the output in the same manner as in 1.14 migration.
+readMarkdown' :: ReaderOptions -> String -> J.Pandoc
+readMarkdown' o s = case parsed of
+  (Left _) -> J.Pandoc J.nullMeta []
+  (Right p) -> p
+  where parsed = runPure (readMarkdown o $ pack s)
 
-#if MIN_VERSION_pandoc(1,14,0)
+#elif MIN_VERSION_pandoc(1,14,0)
 readMarkdown' :: ReaderOptions -> String -> J.Pandoc
 readMarkdown' o s = case read of
                       (Left _)  -> J.Pandoc J.nullMeta []
