@@ -9,8 +9,8 @@ Bug-Reports:          https://github.com/baig/pandoc-csv2table-filter/issues
 License:              MIT
 License-File:         LICENSE
 Author:               Wasif Hasan Baig <pr.wasif@gmail.com>
-Maintainer:           Wasif Hasan Baig <pr.wasif@gmail.com>
-Copyright:            (c) 2015 Wasif Hasan Baig
+Maintainer:           Venkateswara Rao Mandela <venkat.mandela@gmail.com>
+Copyright:            (c) 2015-2019 Wasif Hasan Baig, Venkateswara Rao Mandela
 Stability:            alpha
 Category:             Text
 Build-Type:           Simple
