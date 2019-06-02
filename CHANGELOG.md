@@ -6,6 +6,13 @@ project adheres to [Semantic Versioning](http://semver.org/) and Haskell
 
 ## [Unreleased]
 
+## [1.0.7] - 2019-06-02
+
+- Export `tablifyCSVLinksPure` for cases where no IO is required.
+- Handle change in Pandoc markdown reader default options in pandoc-csv2table
+  See <https://github.com/jgm/pandoc/commit/a58369a7e65075800>
+- Update stack version
+
 ## [1.0.6] - 2018-11-29
 
 - Made compatibile with Pandoc 2.0+ (Merged pull request by @vmandela)
