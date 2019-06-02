@@ -51,7 +51,8 @@ module Text.Table.Helper (
 
 import Text.CSV (CSV)
 import Data.List (isInfixOf)
-import Text.Pandoc (readMarkdown, def, ReaderOptions)
+import Text.Pandoc (readMarkdown, def, ReaderOptions, readerExtensions)
+import Text.Pandoc.Extensions
 import qualified Text.Pandoc.JSON as J
 -- Local imports
 import Text.Table.Definition
@@ -135,6 +136,22 @@ getAtr a ((at,v):_) | a == at = v
 getAtr a (_:xs)               = getAtr a xs
 getAtr a []                   = ""
 
+ropt :: ReaderOptions
+ropt = def
+    {
+      -- In the below Pandoc commit,
+      --
+      -- https://github.com/jgm/pandoc/commit/a58369a7e65075800
+      --
+      -- the default reader options were changed from pandocExtensions to
+      -- empty. This resulted in the markdown to Pandoc AST conversion
+      -- failing
+      --
+      -- To fix this issue, we enable the required reader options in
+      -- pandoc-csv2table.
+      readerExtensions = pandocExtensions
+    }
+
 -- The conversion happens in three stages
 -- 1. Convert the CSV to an internal table representation
 -- 2. Convert internal table representation to markdown
@@ -150,13 +167,13 @@ getAtr a []                   = ""
 -- | Make Pandoc Table from Image Inline 
 tableFromImageInline :: [J.Inline] -> CSV -> J.Pandoc
 tableFromImageInline l = addInlineLabel (removeConfigString l) .
-                         readMarkdown' def .
+                         readMarkdown' ropt .
                          toMarkdown (getTableType l) AfterTable .
                          mkTable "" (getAligns l) (isHeaderPresent l)
 
 -- | Make Pandoc Table from Code Block 
 tableFromCodeBlock :: Atrs -> CSV -> J.Pandoc
-tableFromCodeBlock as = readMarkdown' def .
+tableFromCodeBlock as = readMarkdown' ropt .
                         toMarkdown (toTableType $ getAtr "type" as) AfterTable .
                         mkTable (getAtr "caption" as)
                                 (toAlign $ getAtr "aligns" as)
