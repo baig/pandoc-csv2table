@@ -35,7 +35,8 @@ with the ".table" attribute and converting them into Pandoc tables.
 -}
 
 module Text.Table.Tablify (
-    tablifyCsvLinks
+    tablifyCsvLinks,
+    tablifyCsvLinksPure
   ) where
 
 import Text.CSV         (parseCSV, parseCSVFromFile)
@@ -84,3 +85,14 @@ tablifyCsvLinks b@(CodeBlock (_, cs, as) s) | "table" `elem` cs = do
                                xss
 -- Return input unchanged in case of no match
 tablifyCsvLinks x = return [x]
+
+tablifyCsvLinksPure :: Block -> [Block]
+tablifyCsvLinksPure b@(CodeBlock (_, cs, as) s) | "table" `elem` cs = do
+  case s of
+    "" -> return b
+    _  -> case (parseCSV "" s) of
+            (Left _)    -> return b
+            (Right xss) -> toBlocks .
+                           tableFromCodeBlock as $
+                           xss
+tablifyCsvLinksPure x = return x
