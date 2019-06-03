@@ -52,7 +52,12 @@ module Text.Table.Helper (
 import Text.CSV (CSV)
 import Data.List (isInfixOf)
 import Text.Pandoc (readMarkdown, def, ReaderOptions, readerExtensions)
+#if MIN_VERSION_pandoc(2, 0, 0)
+-- Extensions was split from Options in 2.0.0
 import Text.Pandoc.Extensions
+#else
+import Text.Pandoc (pandocExtensions)
+#endif
 import qualified Text.Pandoc.JSON as J
 -- Local imports
 import Text.Table.Definition
