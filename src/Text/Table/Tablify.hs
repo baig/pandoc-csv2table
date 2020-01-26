@@ -49,12 +49,12 @@ tablifyCsvLinks :: Block -> IO [Block]
 -- variant 1: Referencing CSV file in Image Links
 #if MIN_VERSION_pandoc(1,16,0)
 -- Image Attr [Inline] Target -- ^ Image:  alt text (list of inlines), target
-tablifyCsvLinks (Para [(Image _ l (f, _))]) | "csv" `isSuffixOf` f = do
+tablifyCsvLinks (Para [(Image _ l (f, _))]) | "csv" `isSuffixOf` (getString f) = do
 #else
 -- Image [Inline] Target -- ^ Image:  alt text (list of inlines), target
 tablifyCsvLinks (Para [(Image l (f, _))]) | "csv" `isSuffixOf` f = do
 #endif
-    csv <- parseCSVFromFile f
+    csv <- parseCSVFromFile $ getString f
     case csv of
         (Left _)    -> return []
         (Right xss) -> return .
@@ -62,17 +62,17 @@ tablifyCsvLinks (Para [(Image l (f, _))]) | "csv" `isSuffixOf` f = do
                        tableFromImageInline l $
                        xss
 -- variant 2 and 3: Fenced Code Blocks
-tablifyCsvLinks b@(CodeBlock (_, cs, as) s) | "table" `elem` cs = do
-    let file = getAtr "source" as
+tablifyCsvLinks b@(CodeBlock (_, cs, as) s) | "table" `elem` (map getString cs) = do
+    let file = getAtr "source" as1
     case file of
       -- variant 2: Referencing CSV file in Fenced Code Blocks
-      "" -> case s of
+      "" -> case s1 of
               "" -> return [b]
-              _  -> case (parseCSV "" s) of
+              _  -> case (parseCSV "" s1) of
                       (Left _)    -> return []
                       (Right xss) -> return .
                                      toBlocks .
-                                     tableFromCodeBlock as $
+                                     tableFromCodeBlock as1 $
                                      xss
       -- variant 3:Including CSV content inside Fenced Code Blocks
       _  -> do
@@ -81,18 +81,22 @@ tablifyCsvLinks b@(CodeBlock (_, cs, as) s) | "table" `elem` cs = do
                 (Left _)    -> return []
                 (Right xss) -> return .
                                toBlocks .
-                               tableFromCodeBlock as $
+                               tableFromCodeBlock as1 $
                                xss
+    where s1 = getString s
+          as1 = (map (applyToTuple getString) as )
 -- Return input unchanged in case of no match
 tablifyCsvLinks x = return [x]
 
 tablifyCsvLinksPure :: Block -> [Block]
-tablifyCsvLinksPure b@(CodeBlock (_, cs, as) s) | "table" `elem` cs = do
-  case s of
+tablifyCsvLinksPure b@(CodeBlock (_, cs, as) s) | "table" `elem` (map getString cs) = do
+  case s1 of
     "" -> return b
-    _  -> case (parseCSV "" s) of
+    _  -> case (parseCSV "" s1) of
             (Left _)    -> return b
             (Right xss) -> toBlocks .
-                           tableFromCodeBlock as $
+                           tableFromCodeBlock as1 $
                            xss
+  where s1 = getString s
+        as1 = (map (applyToTuple getString) as )
 tablifyCsvLinksPure x = return x

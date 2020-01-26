@@ -47,6 +47,8 @@ module Text.Table.Helper (
     , toAlign
     , tableFromImageInline
     , tableFromCodeBlock
+    , getString
+    , applyToTuple
 ) where
 
 import Text.CSV (CSV)
@@ -65,8 +67,17 @@ import Text.Table.Builder
 -- imports for compatibility with Pandoc 2.0+
 #if MIN_VERSION_pandoc(2,0,0)
 import Text.Pandoc (runPure)
-import Data.Text (pack)
+import Data.Text (pack, unpack)
 #endif
+
+#if MIN_VERSION_pandoc(2,9,0)
+getString = unpack
+#else
+getString = id
+#endif
+
+applyToTuple :: (a -> b) -> (a, a) -> (b, b)
+applyToTuple f (x, y) = ((f x), (f y))
 
 -- Helper functions to manipulate the Pandoc Document and parse the 
 -- Configuration String.
@@ -96,13 +107,13 @@ toTableType s = case s of
                   _           -> Grid
 
 getTableType :: [J.Inline] -> TableType
-getTableType ((J.Str s):[]) = toTableType1 s
+getTableType ((J.Str s):[]) = toTableType1 (getString s)
 getTableType (_:is)         = getTableType is
 getTableType []             = Grid
 
 -- | Whether to treat first line of CSV as a header or not.
 isHeaderPresent :: [J.Inline] -> Bool
-isHeaderPresent ((J.Str s):[]) = not $ "n" `isInfixOf` s
+isHeaderPresent ((J.Str s):[]) = not $ "n" `isInfixOf` (getString s)
 isHeaderPresent (_:is)         = isHeaderPresent is
 isHeaderPresent []             = True
 
@@ -125,7 +136,7 @@ toAlign []     = []
 
 -- | Parse Config String for alignment information
 getAligns :: [J.Inline] -> [Align]
-getAligns ((J.Str s):[]) = toAlign s
+getAligns ((J.Str s):[]) = toAlign (getString s)
 getAligns (_:is)         = getAligns is
 getAligns []             = []
 
