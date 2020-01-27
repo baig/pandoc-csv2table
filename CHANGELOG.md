@@ -3,8 +3,13 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning](http://semver.org/) and Haskell
 [package versioning policy](https://wiki.haskell.org/Package_versioning_policy).
 
-
 ## [Unreleased]
+
+## [1.0.8] - 2020-01-27
+
+- update stack version
+- Fix build failure with pandoc 1.17
+- Fix build failure with pandoc 2.9
 
 ## [1.0.7] - 2019-06-02
 
@@ -50,7 +55,9 @@ project adheres to [Semantic Versioning](http://semver.org/) and Haskell
 - The first release.
 
 
-[Unreleased]: https://github.com/baig/pandoc-csv2table-filter/compare/1.0.6...HEAD
+[Unreleased]: https://github.com/baig/pandoc-csv2table-filter/compare/1.0.8...HEAD
+[1.0.8]: https://github.com/baig/pandoc-csv2table-filter/compare/1.0.7...1.0.8
+[1.0.7]: https://github.com/baig/pandoc-csv2table-filter/compare/1.0.6...1.0.7
 [1.0.6]: https://github.com/baig/pandoc-csv2table-filter/compare/1.0.5...1.0.6
 [1.0.5]: https://github.com/baig/pandoc-csv2table-filter/compare/1.0.4...1.0.5
 [1.0.4]: https://github.com/baig/pandoc-csv2table-filter/compare/1.0.3...1.0.4

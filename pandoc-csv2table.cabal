@@ -1,5 +1,5 @@
 Name:                 pandoc-csv2table
-Version:              1.0.7
+Version:              1.0.8
 Synopsis:             Convert CSV to Pandoc Table Markdown
 Description:          A Pandoc filter that replaces image inline or fenced code
                       blocks with pandoc table markdown. CSV contents will be
@@ -10,7 +10,7 @@ License:              MIT
 License-File:         LICENSE
 Author:               Wasif Hasan Baig <pr.wasif@gmail.com>
 Maintainer:           Venkateswara Rao Mandela <venkat.mandela@gmail.com>
-Copyright:            (c) 2015-2019 Wasif Hasan Baig, Venkateswara Rao Mandela
+Copyright:            (c) 2015-2020 Wasif Hasan Baig, Venkateswara Rao Mandela
 Stability:            alpha
 Category:             Text
 Build-Type:           Simple

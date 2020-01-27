@@ -1,5 +1,7 @@
 # Pandoc csv2table Filter
 
+[![Build Status](https://travis-ci.org/vmandela/pandoc-csv2table.svg?branch=master)](https://travis-ci.org/vmandela/pandoc-csv2table)
+
 A Pandoc filter that replaces CSV content (either inside fenced code blocks or referenced CSV files) with
 [Pandoc Table Markdown][tables].
 
@@ -149,7 +151,7 @@ Valid attributes that you can specify in code blocks include:
 
 ## License
 
-Copyright &copy; 2015-2018 [Wasif Hasan Baig](https://twitter.com/_wbaig)
+Copyright &copy; 2015-2020 [Wasif Hasan Baig](https://twitter.com/_wbaig),[Venkateswara Rao Mandela](https://vmandela.com)
 
 Source code is released under the Terms and Conditions of [MIT License](http://opensource.org/licenses/MIT).
 

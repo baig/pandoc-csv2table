@@ -27,7 +27,7 @@ SOFTWARE.
    Copyright   : Copyright (C) 2015 Wasif Hasan Baig
    License     : MIT
 
-   Maintainer  : Wasif Hasan Baig <pr.wasif@gmail.com>
+   Maintainer  : Venkateswara Rao Mandela <venkat.mandela@gmail.com>
    Stability   : alpha
 
 Function for operating on Pandoc fenced code blocks or image blocks
