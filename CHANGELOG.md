@@ -5,6 +5,9 @@ project adheres to [Semantic Versioning](http://semver.org/) and Haskell
 
 ## [Unreleased]
 
+- Update for change to table definition in pandoc-types 1.21.0
+- Added test procedure in lieu of a full test suite
+
 ## [1.0.8] - 2020-01-27
 
 - update stack version

@@ -84,7 +84,12 @@ applyToTuple f (x, y) = ((f x), (f y))
 
 -- | Add Inline from Image into Table as the caption
 addInlineLabel :: [J.Inline] -> J.Pandoc -> J.Pandoc
+#if MIN_VERSION_pandoc_types(1,21,0)
+addInlineLabel i (J.Pandoc m [(J.Table attr _ colSpec tableHead tableBody tableFoot)]) = J.Pandoc m [(J.Table attr inlineCaption colSpec tableHead tableBody tableFoot)]
+                                                                                          where inlineCaption = J.Caption (Nothing) [J.Plain i] -- We dont support ShortCaption
+#else
 addInlineLabel i (J.Pandoc m [(J.Table _ as ds ts tss)]) = J.Pandoc m [(J.Table i as ds ts tss)]
+#endif
 addInlineLabel _ x = x
 
 -- | Extracts Blocks from Pandoc Document
