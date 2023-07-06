@@ -151,7 +151,7 @@ Valid attributes that you can specify in code blocks include:
 
 ## License
 
-Copyright &copy; 2015-2020 [Wasif Hasan Baig](https://twitter.com/_wbaig),[Venkateswara Rao Mandela](https://vmandela.com)
+Copyright &copy; 2015-2023 [Wasif Hasan Baig](https://twitter.com/_wbaig),[Venkateswara Rao Mandela](https://vmandela.com)
 
 Source code is released under the Terms and Conditions of [MIT License](http://opensource.org/licenses/MIT).
 
